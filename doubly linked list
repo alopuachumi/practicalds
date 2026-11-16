@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node *prev, *next;
+};
+
+struct node *head = NULL;
+
+void create() {
+    int a[] = {10,20,30,40,50};
+    for(int i=0;i<5;i++) {
+        struct node *n=malloc(sizeof(struct node));
+        n->data=a[i]; n->next=NULL; n->prev=NULL;
+        if(!head) head=n;
+        else {
+            struct node *t=head;
+            while(t->next) t=t->next;
+            t->next=n; n->prev=t;
+        }
+    }
+}
+
+void display() {
+    struct node *t=head;
+    while(t) {
+        printf("%d <-> ",t->data);
+        t=t->next;
+    }
+    printf("NULL\n");
+}
+
+void insert(int x,int p) {
+    struct node *n=malloc(sizeof(struct node)), *t=head;
+    n->data=x;
+    if(p<=1) {
+        n->prev=NULL; n->next=head;
+        if(head) head->prev=n;
+        head=n; return;
+    }
+    for(int i=1;i<p-1 && t;i++) t=t->next;
+    if(!t) { free(n); printf("Invalid position\n"); return; }
+    n->next=t->next; n->prev=t;
+    if(t->next) t->next->prev=n;
+    t->next=n;
+}
+
+void delete(int p) {
+    struct node *t=head;
+    if(p<1 || !t) return;
+    for(int i=1;i<p && t;i++) t=t->next;
+    if(!t) return;
+    if(t->prev) t->prev->next=t->next;
+    else head=t->next;
+    if(t->next) t->next->prev=t->prev;
+    free(t);
+}
+
+void search(int x) {
+    struct node *t=head;
+    int p=1;
+    while(t) {
+        if(t->data==x) {
+            printf("Found at %d\n",p); return;
+        }
+        t=t->next; p++;
+    }
+    printf("Not found\n");
+}
+
+void count() {
+    int c=0;
+    struct node *t=head;
+    while(t) { c++; t=t->next; }
+    printf("Total nodes = %d\n",c);
+}
+
+void reverse() {
+    struct node *t=NULL,*c=head;
+    while(c) {
+        t=c->prev; c->prev=c->next;
+        c->next=t; c=c->prev;
+    }
+    if(t) head=t->prev;
+}
+
+int main() {
+    int ch,x,p;
+    create();
+
+    do {
+        printf("\n1.Display 2.Insert 3.Delete 4.Search");
+        printf("\n5.Count 6.Reverse 7.Exit\nChoice: ");
+        scanf("%d",&ch);
+
+        switch(ch) {
+            case 1: display(); break;
+            case 2:
+                printf("Enter value and position: ");
+                scanf("%d%d",&x,&p);
+                insert(x,p); display(); break;
+            case 3:
+                printf("Enter position: ");
+                scanf("%d",&p);
+                delete(p); display(); break;
+            case 4:
+                printf("Enter value: ");
+                scanf("%d",&x);
+                search(x); break;
+            case 5: count(); break;
+            case 6: reverse(); display(); break;
+        }
+    } while(ch!=7);
+
+    return 0;
+}
